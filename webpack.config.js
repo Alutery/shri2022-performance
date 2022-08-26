@@ -1,69 +1,52 @@
-import * as path from "path"
-import * as webpack from "webpack"
-import HtmlWebpackPlugin from "html-webpack-plugin"
-import StatoscopePlugin from "@statoscope/webpack-plugin"
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+const CopyWebpackPlugin= require('copy-webpack-plugin');
 
-import ModuleLogger from "./plugins/moduleLogger"
-
-const whiteList = [
-    ".gitignore",
-    "node_modules",
-    ".git",
-    ".idea",
-    "webpack.config.ts",
-    "tsconfig.json",
-    "stats.json",
-    "statoscope.config.js",
-    "package.json",
-    "package-lock.json",
-    ".nvmrc",
-    ".prettierrc.yaml",
-    "README.md",
-    "moduleLogger.ts",
-    "dist",
-    "index.html",
-    "unused.json"
-]
-
-const config: webpack.Configuration = {
+const config = {
     mode: "production",
-    entry: {
-        root: "./src/pages/root.tsx",
-        root2: "./src/pages/root2.tsx"
-    },
+    entry: "./scripts.js",
     output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "[name].[contenthash].js",
+        filename: "./app.bundle.js",
         clean: true
     },
     plugins: [
-        new HtmlWebpackPlugin(),
-        new ModuleLogger({ whiteList }),
-        new StatoscopePlugin({
-            saveStatsTo: "stats.json",
-            saveOnlyStats: false,
-            open: false
+        new CleanWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            hash: true,
+            template: './index.html'
+        }),
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[id].css'
+        }),
+        new MiniCssExtractPlugin(),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: "assets", to: "assets" },
+            ],
         })
     ],
+    optimization: {
+        minimizer: [
+            new CssMinimizerPlugin(),
+        ],
+    },
     resolve: {
-        extensions: [".tsx", ".ts", ".js"],
-        fallback: {
-            buffer: require.resolve("buffer"),
-            stream: false
-        }
+        extensions: [".js"]
     },
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: "ts-loader",
-                exclude: /node_modules/
+                test: /\.css$/i,
+                use: [MiniCssExtractPlugin.loader, "css-loader"],
+            },
+            {
+                test: /^index\.html$/, use: [HtmlWebpackPlugin, "html-loader"]
             }
-        ]
-    },
-    externals: {
-        "bn.js": "fake.js"
+        ],
     }
 }
 
-export default config
+module.exports = config

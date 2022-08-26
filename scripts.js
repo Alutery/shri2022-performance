@@ -1,3 +1,6 @@
+require('./reset.css');
+require('./styles.css');
+
 (() => {
     function bind(nodes, event, handler) {
         nodes.forEach(node => {
@@ -8,7 +11,7 @@
     function makeTabs(node) {
         let selected = node.querySelector('.section__tab_active').dataset.id;
         const tabs = node.querySelectorAll('.section__tab');
-        const list = tabs.map(node => node.dataset.id);
+        const list = Array.from(tabs).map(node => node.dataset.id);
         const select = node.querySelector('.section__select');
 
         function selectTab(newId) {
