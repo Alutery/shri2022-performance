@@ -3,50 +3,60 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const CopyWebpackPlugin= require('copy-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
+const path = require("path");
 
 const config = {
-    mode: "production",
-    entry: "./scripts.js",
-    output: {
-        filename: "./app.bundle.js",
-        clean: true
-    },
-    plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            hash: true,
-            template: './index.html'
-        }),
-        new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css'
-        }),
-        new MiniCssExtractPlugin(),
-        new CopyWebpackPlugin({
-            patterns: [
-                { from: "assets", to: "assets" },
-            ],
-        })
+  mode: "production",
+  entry: {
+    index: "./scripts.js",
+  },
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].bundle.js",
+    clean: true,
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      hash: true,
+      template: "./index.html",
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css",
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: "assets", to: "assets" }],
+    }),
+  ],
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin({
+        minify: [
+          CssMinimizerPlugin.cssnanoMinify,
+          CssMinimizerPlugin.cleanCssMinify,
+        ],
+      }),
+      new TerserPlugin(),
     ],
-    optimization: {
-        minimizer: [
-            new CssMinimizerPlugin(),
-        ],
-    },
-    resolve: {
-        extensions: [".js"]
-    },
-    module: {
-        rules: [
-            {
-                test: /\.css$/i,
-                use: [MiniCssExtractPlugin.loader, "css-loader"],
-            },
-            {
-                test: /^index\.html$/, use: [HtmlWebpackPlugin, "html-loader"]
-            }
-        ],
-    }
-}
+    minimize: true,
+  },
+  resolve: {
+    extensions: [".js"],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+      {
+        test: /^index\.html$/,
+        use: [HtmlWebpackPlugin, "html-loader"],
+      },
+    ],
+  },
+};
 
 module.exports = config
