@@ -2,21 +2,39 @@ require('./reset.css');
 require('./styles.css');
 
 (() => {
+    const tabMap = new Map()
+    const panelMap = new Map()
+
     function bind(nodes, event, handler) {
         nodes.forEach(node => {
             node.addEventListener(event, handler);
         });
     }
 
-    function makeTabs(node) {
+    function makeTabs() {
+        const node = document.querySelector('.main__devices');
+
         let selected = node.querySelector('.section__tab_active').dataset.id;
         const tabs = node.querySelectorAll('.section__tab');
-        const list = Array.from(tabs).map(node => node.dataset.id);
+        const list = Array(tabs.length).fill()
+        tabs.forEach((tab, index) => {
+            list[index] = tab.dataset.id
+        })
         const select = node.querySelector('.section__select');
 
         function selectTab(newId) {
-            const newTab = node.querySelector(`.section__tab[data-id=${newId}]`);
-            const newPanel = node.querySelector(`.section__panel[data-id=${newId}]`);
+            let newTab = tabMap.get(newId)
+            if (!newTab) {
+                newTab = node.querySelector(`.section__tab[data-id=${newId}]`);
+                tabMap.set(newId, newTab)
+            }
+
+            let newPanel = panelMap.get(newId)
+            if (!newPanel) {
+                newPanel = node.querySelector(`.section__panel[data-id=${newId}]`);
+                panelMap.set(newId, newPanel)
+            }
+
             const oldTab = node.querySelector('.section__tab_active');
             const oldPanel = node.querySelector('.section__panel:not(.section__panel_hidden)');
 
@@ -57,46 +75,39 @@ require('./styles.css');
 
             let index = list.indexOf(selected);
             if (event.which === 37) {
-                // left
                 --index;
             } else if (event.which === 39) {
-                // right
                 ++index;
             } else if (event.which === 36) {
-                // home
                 index = 0;
             } else if (event.which === 35) {
-                // end
                 index = list.length - 1;
             } else {
                 return;
             }
 
-            if (index >= list.length) {
-                index = 0;
-            } else if (index < 0) {
-                index = list.length - 1;
-            }
+            const N = list.length
+            index = (index + N) % N
 
             selectTab(list[index]);
         });
     }
 
-    function makeMenu(node) {
+    function makeMenu() {
+        const menu = document.getElementById('header-menu');
         let expanded = false;
-        const links = document.querySelector('.header__links');
+        const links = document.getElementById('header-links');
 
-        node.addEventListener('click', () => {
+        menu.addEventListener('click', () => {
             expanded = !expanded;
-            node.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            node.querySelector('.header__menu-text').textContent = expanded ? 'Закрыть меню' : 'Открыть меню';
+            menu.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            menu.querySelector('.header__menu-text').textContent = expanded ? 'Закрыть меню' : 'Открыть меню';
             links.classList.toggle('header__links_opened', expanded);
-            links.classList.add('header__links-toggled');
         });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        makeTabs(document.querySelector('.main__devices'));
-        makeMenu(document.querySelector('.header__menu'));
+        makeTabs();
+        makeMenu();
     });
 })();

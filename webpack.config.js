@@ -2,7 +2,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
-const CopyWebpackPlugin= require('copy-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
 
@@ -26,9 +25,6 @@ const config = {
       filename: "[name].css",
       chunkFilename: "[id].css",
     }),
-    new CopyWebpackPlugin({
-      patterns: [{ from: "assets", to: "assets" }],
-    }),
   ],
   optimization: {
     minimizer: [
@@ -38,7 +34,9 @@ const config = {
           CssMinimizerPlugin.cleanCssMinify,
         ],
       }),
-      new TerserPlugin(),
+      new TerserPlugin({
+        minify: TerserPlugin.uglifyJsMinify,
+      }),
     ],
     minimize: true,
   },

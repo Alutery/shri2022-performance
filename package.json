@@ -6,7 +6,7 @@
   "main": "scripts.js",
   "scripts": {
     "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode production --open",
+    "start": "webpack-dev-server --mode development --open",
     "deploy": "npm run build && gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -33,6 +33,7 @@
     "mini-css-extract-plugin": "^2.6.1",
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.5",
+    "uglify-js": "^3.17.0",
     "url-loader": "^4.1.1",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
